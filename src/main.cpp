@@ -113,19 +113,22 @@ void ZoomApp::updateViewAfterResize() {
 // user's cursor pointing to the same thing as when it is unzoomed.
 void ZoomApp::updateZoomView(sf::Vector2i mousePos) {
     // TODO: Implement this method. High-level outline/hints given.
-    // (1) Get position of mouse relative to viewport's top-left in window pixel units.
-    //     Remember that in SFML, viewports' position and size are both given as PERCENTAGES
-    //     of the window size.
-    // (2) Get position of mouse relative to viewport's top-left as percentage of original
-    //     viewport.
-    // (3) Then use that to get pos of mouse relative to world top-left in world units.
-    // (4) Derive the new viewport center (in world units)
-    //     which keeps the mouse position pointing at the same thing in
-    //     original image but now within a world-space rectangle of size
-    //     mWorldSize / ZOOM_FACTOR.
-    //  HINT: Determine the steps to go from the desired center to the top-left of this new
-    //        world-space rectangle, then from this top-left to the thing you're pointing at,
-    //        using our above computed vars. Then solve the equation for the desired center.
+    sf::Vector2u windowSize = mWindow.getSize();
+    sf::FloatRect viewport = mWorldViewDefault.getViewport();
+    float pixelX = mousePos.x - ( windowSize.x * viewport.position.x);
+    float pixelY = mousePos.y - ( windowSize.y * viewport.position.y); 
+    sf::Vector2f mouseViewportPos(pixelX, pixelY);
+
+    sf::Vector2f percent = {mouseViewportPos.x / (windowSize.x * viewport.size.x), mouseViewportPos.y / (windowSize.y * viewport.size.y)};
+
+    sf::Vector2f worldPos(mWorldSize.x * percent.x, mWorldSize.y * percent.y);
+
+    // c = world - (window - s/2) / z
+    sf::Vector2f s = {windowSize.x * viewport.size.x, windowSize.y * viewport.size.y};
+    sf::Vector2f z = {s.x / mWorldViewZoomed.getSize().x, s.y / mWorldViewZoomed.getSize().y};
+    sf::Vector2f c(worldPos.x - (mouseViewportPos.x - s.x / 2.f) / z.x, worldPos.y - (mouseViewportPos.y - s.y / 2.f) / z.y);
+    mWorldViewZoomed.setCenter(c);
+
 }
 
 void ZoomApp::render() {

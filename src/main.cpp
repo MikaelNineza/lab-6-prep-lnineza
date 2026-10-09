@@ -88,26 +88,24 @@ void ZoomApp::updateViewAfterResize() {
     //      Color::Black in render()
     // ====== ====== ======
 
-    // Calculate newViewport based on aspect ratios of window and of mWorldSize. Then:
-    // mWorldViewDefault.setViewport(newViewport);
-    // mWorldViewZoomed.setViewport(newViewport);
-
     sf::Vector2u windowSize = mWindow.getSize();
     float windowRatio = static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y);
     float worldRatio = mWorldSize.x / mWorldSize.y;
 
-    float viewportX = 1.f;
-    float viewportY = 1.f;
+    float percentX = 1.f;
+    float percentY = 1.f;
     if (windowRatio > worldRatio) {
-        viewportX = worldRatio / windowRatio;
+        percentX = worldRatio / windowRatio;
     }
     else if (windowRatio < worldRatio) {
-        viewportY = windowRatio / worldRatio;
+        percentY = windowRatio / worldRatio;
     }
 
-    float startX = (1.f - viewportX) / 2.f;
-    float startY = (1.f - viewportY) / 2.f;
-    sf::FloatRect viewport(sf::Vector2f(startX, startY), sf::Vector2f(viewportX, viewportY))
+    float startX = (1.f - percentX) / 2.f;
+    float startY = (1.f - percentY) / 2.f;
+    sf::FloatRect newViewport(sf::Vector2f(startX, startY), sf::Vector2f(percentX, percentY));
+    mWorldViewDefault.setViewport(newViewport);
+    mWorldViewZoomed.setViewport(newViewport);
 
 }
 
